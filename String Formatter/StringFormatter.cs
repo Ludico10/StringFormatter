@@ -5,6 +5,12 @@ namespace String_Formatter
     public class StringFormatter : IStringFormatter
     {
         public static readonly StringFormatter Shared = new StringFormatter();
+        private readonly ExpressionCashe cashe;
+
+        StringFormatter()
+        {
+            cashe = new ExpressionCashe();
+        }
 
         private enum State            // -------------------------
         {                             // |   | S | I | N | { | } |      
@@ -12,7 +18,7 @@ namespace String_Formatter
             Text = 1,                 // | 0 | 0 | 0 | 0 | 0 | 0 |      I - symbols that can be first symbol of identifier
             Identifier = 2,           // -------------------------      N - number
             OpenBracket = 3,          // | 1 | 1 | 1 | 1 | 3 | 4 |
-            CloseBracket = 4          // -------------------------
+            CloseBracket = 4          // -------------------------      
         }                             // | 2 | 0 | 2 | 2 | 0 | 1 |
                                       // -------------------------
                                       // | 3 | 0 | 2 | 0 | 1 | 0 |
@@ -32,7 +38,7 @@ namespace String_Formatter
 
             for (int i = 0; i < template.Length; i++)
             {
-                switch (state)
+                switch (state)  // [state, input]
                 {
                     case State.Text: 
                         {
@@ -70,7 +76,9 @@ namespace String_Formatter
                             // [2, '}']
                             else if (template[i] == '}')
                             {
-                                //operations with cashe
+                                string? strIdentifire = cashe.FindElement(identifire.ToString(), target);
+                                if (strIdentifire == null) strIdentifire = cashe.AddElement(identifire.ToString(), target);
+                                if (strIdentifire != null) res.Append(strIdentifire);
                                 bracketCnt--;
                                 if (bracketCnt < 0) throw new ArgumentException($"Incorrect symbol {template[i]} at {i}");
                                 state = State.Text;
