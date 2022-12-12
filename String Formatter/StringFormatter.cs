@@ -12,21 +12,19 @@ namespace String_Formatter
             cashe = new ExpressionCashe();
         }
 
-        private enum State            // -----------------------------
-        {                             // |   | S | I | N | { | } | _ |  
-            Error = 0,                // -----------------------------      S - symbols without I, N, '{', '}', ' '  
-            Text = 1,                 // | 0 | 0 | 0 | 0 | 0 | 0 | 0 |      I - symbols that can be first symbol of identifier
-            Identifier = 2,           // -----------------------------      N - number
-            OpenBracket = 3,          // | 1 | 1 | 1 | 1 | 3 | 4 | 1 |      _ - ' '
-            CloseBracket = 4,         // -----------------------------      
-            Space = 5                 // | 2 | 0 | 2 | 2 | 0 | 1 | 5 |
-        }                             // -----------------------------
-                                      // | 3 | 0 | 2 | 0 | 1 | 0 | 3 |
-                                      // -----------------------------
-                                      // | 4 | 0 | 0 | 0 | 0 | 1 | 0 |
-                                      // -----------------------------
-                                      // | 5 | 0 | 0 | 0 | 0 | 1 | 5 |
-                                      // -----------------------------
+        private enum State            // -------------------------
+        {                             // |   | S | I | N | { | } |      
+            Error = 0,                // -------------------------      S - symbols without I, N, '{', '}'  
+            Text = 1,                 // | 0 | 0 | 0 | 0 | 0 | 0 |      I - symbols that can be first symbol of identifier
+            Identifier = 2,           // -------------------------      N - number
+            OpenBracket = 3,          // | 1 | 1 | 1 | 1 | 3 | 4 |
+            CloseBracket = 4          // -------------------------      
+        }                             // | 2 | 0 | 2 | 2 | 0 | 1 |
+                                      // -------------------------
+                                      // | 3 | 0 | 2 | 0 | 1 | 0 |
+                                      // -------------------------
+                                      // | 4 | 0 | 0 | 0 | 0 | 1 |
+                                      // -------------------------
 
         private string identifierFirst = "_ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
         private string numbers = "0123456789";
@@ -59,7 +57,7 @@ namespace String_Formatter
                                 if (bracketCnt < 0) throw new ArgumentException($"Incorrect symbol {template[i]} at {i}");
                                 state = State.CloseBracket;
                             }
-                            // [1, S], [1, I], [1, N], [1, ' ']
+                            // [1, S], [1, I], [1, N]
                             else
                             {
                                 res.Append(template[i]);
@@ -80,15 +78,14 @@ namespace String_Formatter
                             {
                                 string? strIdentifire = cashe.FindElement(identifire.ToString(), target);
                                 if (strIdentifire == null) strIdentifire = cashe.AddElement(identifire.ToString(), target);
-                                if (strIdentifire != null) res.Append(strIdentifire);
-                                bracketCnt--;
-                                if (bracketCnt < 0) throw new ArgumentException($"Incorrect symbol {template[i]} at {i}");
-                                state = State.Text;
-                            }
-                            // [2, ' ']
-                            else if (template[i] == ' ')
-                            {
-                                state = State.Space;
+                                if (strIdentifire != null)
+                                {
+                                    res.Append(strIdentifire);
+                                    bracketCnt--;
+                                    if (bracketCnt < 0) throw new ArgumentException($"Incorrect symbol {template[i]} at {i}");
+                                    state = State.Text;
+                                }
+                                else throw new ArgumentException($"Incorrect identifire {identifire.ToString()} at {i - identifire.Length + 1}");
                             }
                             // [2, S], [2, '{']
                             else throw new ArgumentException($"Incorrect symbol {template[i]} at {i}");
@@ -110,11 +107,6 @@ namespace String_Formatter
                                 bracketCnt++;
                                 state = State.Text;
                             }
-                            // [3, ' ']
-                            else if (template[i] == ' ')
-                            {
-                                state = State.Space;
-                            }
                             // [3, S], [3, N], [3, '}']
                             else throw new ArgumentException($"Incorrect symbol {template[i]} at {i}");
                             break; 
@@ -128,27 +120,9 @@ namespace String_Formatter
                                 if (bracketCnt < 0) throw new ArgumentException($"Incorrect symbol {template[i]} at {i}");
                                 state = State.Text;
                             }
-                            // [4, S], [4, I], [4, N], [4, '{'], [4, ' ']
+                            // [4, S], [4, I], [4, N], [4, '{']
                             else throw new ArgumentException($"Incorrect symbol {template[i]} at {i}");
                             break; 
-                        }
-                    case State.Space:
-                        {
-                            // [5, '}']
-                            if (template[i] == '}')
-                            {
-                                bracketCnt--;
-                                if (bracketCnt < 0) throw new ArgumentException($"Incorrect symbol {template[i]} at {i}");
-                                state = State.Text;
-                            }
-                            // [5, ' ']
-                            else if (template[i] == ' ')
-                            {
-                                state = State.Space;
-                            }
-                            // [5, S], [5, I], [5, N], [5, '{']
-                            else throw new ArgumentException($"Incorrect symbol {template[i]} at {i}");
-                            break;
                         }
                 }
             }

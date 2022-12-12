@@ -14,8 +14,9 @@ namespace String_Formatter
 
         public string? FindElement(string key, object target)
         {
+            string fullKey = target.GetType().Name + '.' + key;
             Func<object, string>? toStr;
-            if (cashe.TryGetValue(key, out toStr)) return toStr(target);
+            if (cashe.TryGetValue(fullKey, out toStr)) return toStr(target);
             else return null;
         }
 
@@ -27,7 +28,8 @@ namespace String_Formatter
                 var pof = Expression.PropertyOrField(Expression.TypeAs(objParam, target.GetType()), key);
                 var pofToStr = Expression.Call(pof, "ToString", null, null);
                 var toStr = Expression.Lambda<Func<object, string>>(pofToStr, objParam).Compile();
-                cashe.TryAdd(key, toStr);
+                string fullKey = target.GetType().Name + '.' + key;
+                cashe.TryAdd(fullKey, toStr);
                 return toStr(target);
             }
             else return null;
