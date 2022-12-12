@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 
 namespace String_Formatter
 {
-    internal class ExpressionCashe
+    public class ExpressionCashe
     {
         private ConcurrentDictionary<string, Func<object, string>> cashe;
 
@@ -12,7 +12,7 @@ namespace String_Formatter
             cashe = new ConcurrentDictionary<string, Func<object, string>>();
         }
 
-        public string? FindElement(string key, object target)
+        public virtual string? FindElement(string key, object target)
         {
             string fullKey = target.GetType().Name + '.' + key;
             Func<object, string>? toStr;
@@ -20,7 +20,7 @@ namespace String_Formatter
             else return null;
         }
 
-        public string? AddElement(string key, object target)
+        public virtual string? AddElement(string key, object target)
         {
             if (target.GetType().GetProperty(key) != null || target.GetType().GetField(key) != null)
             {

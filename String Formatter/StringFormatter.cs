@@ -7,9 +7,14 @@ namespace String_Formatter
         public static readonly StringFormatter Shared = new StringFormatter();
         private readonly ExpressionCashe cashe;
 
-        StringFormatter()
+        public StringFormatter()
         {
             cashe = new ExpressionCashe();
+        }
+
+        public StringFormatter(ExpressionCashe cashe)
+        {
+            this.cashe = cashe;
         }
 
         private enum State            // -------------------------
@@ -112,7 +117,7 @@ namespace String_Formatter
                                 state = State.Text;
                             }
                             // [4, S], [4, I], [4, N], [4, '{']
-                            else throw new ArgumentException($"Incorrect symbol {template[i]} at {i}");
+                            else throw new ArgumentException($"Incorrect count of brackets");
                             break; 
                         }
                 }
