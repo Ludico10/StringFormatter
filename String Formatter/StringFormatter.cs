@@ -33,7 +33,6 @@ namespace String_Formatter
         {
             var res = new StringBuilder();
             var identifire = new StringBuilder();
-            int bracketCnt = 0;
             var state = State.Text;
 
             for (int i = 0; i < template.Length; i++)
@@ -46,15 +45,12 @@ namespace String_Formatter
                             if (template[i] == '{')
                             {
                                 res.Append(template[i]);
-                                bracketCnt++;
                                 state = State.OpenBracket;
                             }
                             // [1, '}']
                             else if (template[i] == '}')
                             {
                                 res.Append(template[i]);
-                                bracketCnt--;
-                                if (bracketCnt < 0) throw new ArgumentException($"Incorrect symbol {template[i]} at {i}");
                                 state = State.CloseBracket;
                             }
                             // [1, S], [1, I], [1, N]
@@ -81,8 +77,6 @@ namespace String_Formatter
                                 if (strIdentifire != null)
                                 {
                                     res.Append(strIdentifire);
-                                    bracketCnt--;
-                                    if (bracketCnt < 0) throw new ArgumentException($"Incorrect symbol {template[i]} at {i}");
                                     state = State.Text;
                                 }
                                 else throw new ArgumentException($"Incorrect identifire {identifire.ToString()} at {i - identifire.Length + 1}");
@@ -104,7 +98,6 @@ namespace String_Formatter
                             // [3, '{']
                             else if (template[i] == '{')
                             {
-                                bracketCnt++;
                                 state = State.Text;
                             }
                             // [3, S], [3, N], [3, '}']
@@ -116,8 +109,6 @@ namespace String_Formatter
                             // [4, '}']
                             if (template[i] == '}')
                             {
-                                bracketCnt--;
-                                if (bracketCnt < 0) throw new ArgumentException($"Incorrect symbol {template[i]} at {i}");
                                 state = State.Text;
                             }
                             // [4, S], [4, I], [4, N], [4, '{']
@@ -126,7 +117,7 @@ namespace String_Formatter
                         }
                 }
             }
-            if (bracketCnt != 0) throw new ArgumentException("Incorrect count of brackets");
+            if (state != State.Text) throw new ArgumentException("Incorrect count of brackets");
             return res.ToString();
         }
     }
